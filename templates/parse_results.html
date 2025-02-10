@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Результаты парсинга{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Результаты парсинга канала {{ channel }}</h2>
+    
+    <div class="mb-3">
+        <button class="btn btn-success" onclick="exportToCSV()">Экспорт в CSV</button>
+        <a href="{{ url_for('parse_channel') }}" class="btn btn-primary">Новый парсинг</a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped" id="messages-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Дата</th>
+                    <th>Текст</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for message in messages %}
+                <tr>
+                    <td>{{ message.id }}</td>
+                    <td>{{ message.date }}</td>
+                    <td>{{ message.text }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function exportToCSV() {
+    let csv = 'ID,Дата,Текст\n';
+    const rows = document.querySelectorAll('#messages-table tbody tr');
+    
+    rows.forEach(row => {
+        const columns = row.querySelectorAll('td');
+        const id = columns[0].textContent;
+        const date = columns[1].textContent;
+        const text = columns[2].textContent.replace(/"/g, '""');
+        csv += `${id},"${date}","${text}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'telegram_messages.csv');
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+{% endblock %} 

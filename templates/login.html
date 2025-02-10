@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="text-center mb-4">Вход через Telegram</h2>
+    <div class="alert alert-info">
+        <p>Для входа введите номер телефона в международном формате.</p>
+    </div>
+    <form method="post">
+        <div class="mb-3">
+            <label for="phone" class="form-label">Номер телефона</label>
+            <input type="tel" class="form-control" id="phone" name="phone" 
+                   placeholder="+7XXXXXXXXXX" pattern="\+[0-9]+" required>
+            <div class="form-text">Например: +79001234567</div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Получить код</button>
+    </form>
+</div>
+{% endblock %} 

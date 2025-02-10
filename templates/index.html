@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1>Добро пожаловать в Инструменты Telegram</h1>
+    <p class="lead">Удобные инструменты для работы с Telegram</p>
+    
+    {% if not current_user.is_authenticated %}
+    <div class="mt-4">
+        <a href="{{ url_for('register') }}" class="btn btn-primary me-2">Регистрация</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">Вход</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

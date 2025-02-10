@@ -1,0 +1,610 @@
+{% extends 'base.html' %}
+{% block title %}Панель управления{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="animated-background"></div>
+    <div class="container py-5">
+        <div class="dashboard-header text-center">
+            <div class="logo-animation mb-4">
+                <i class="fas fa-robot gradient-icon"></i>
+            </div>
+            <h2 class="display-4 fw-bold gradient-text mb-3">Панель управления</h2>
+            <p class="lead text-muted mb-5">Добро пожаловать в панель управления Telegram инструментами</p>
+        </div>
+
+    
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="card modern-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon-wrapper">
+                            <i class="fas fa-search gradient-icon"></i>
+                        </div>
+                        <h5 class="card-title text-center mb-3">Парсинг Telegram</h5>
+                        <p class="card-text text-center mb-4">Собирайте сообщения из каналов и групп Telegram с удобной фильтрацией и экспортом</p>
+                        <div class="d-grid">
+                            <a href="{{ url_for('parse_channel') }}" class="btn btn-modern">
+                                <i class="fas fa-arrow-right me-2"></i> Начать парсинг
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="card modern-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon-wrapper">
+                            <i class="fas fa-globe gradient-icon"></i>
+                        </div>
+                        <h5 class="card-title text-center mb-3">Глобальный поиск</h5>
+                        <p class="card-text text-center mb-4">Находите каналы, чаты и боты по ключевым словам и интересам</p>
+                        <div class="d-grid">
+                            <a href="{{ url_for('global_search') }}" class="btn btn-modern">
+                                <i class="fas fa-arrow-right me-2"></i> Начать поиск
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="card modern-card">
+                    <div class="card-body p-4">
+                        <div class="feature-icon-wrapper">
+                            <i class="fas fa-paper-plane gradient-icon"></i>
+                        </div>
+                        <h5 class="card-title text-center mb-3">Рассылка сообщений</h5>
+                        <p class="card-text text-center mb-4">Отправляйте сообщения в каналы и группы Telegram с поддержкой форматирования</p>
+                        <div class="d-grid">
+                            <a href="{{ url_for('send_message') }}" class="btn btn-modern">
+                                <i class="fas fa-arrow-right me-2"></i> Создать рассылку
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="help-section modern-card p-4">
+                <h5 class="gradient-text mb-4">
+                    <i class="fas fa-question-circle fa-lg me-2"></i> Справка и руководство пользователя
+                </h5>
+                <div class="accordion custom-accordion" id="faqAccordion">
+                    <div class="accordion-item modern-accordion-item mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button modern-accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                <i class="fas fa-search me-2 gradient-icon-small"></i> Как начать парсинг канала?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body modern-accordion-body">
+                                <ol class="feature-list">
+                                    <li class="feature-item">Перейдите в раздел "Парсинг Telegram"</li>
+                                    <li class="feature-item">Вставьте ссылку на канал или username</li>
+                                    <li class="feature-item">Выберите количество сообщений</li>
+                                    <li class="feature-item">Настройте фильтры при необходимости</li>
+                                    <li class="feature-item">Нажмите "Начать парсинг"</li>
+                                </ol>
+                                <div class="info-box">
+                                    <i class="fas fa-lightbulb text-warning"></i>
+                                    <span>Совет: Используйте временной период для точных результатов</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item modern-accordion-item mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button modern-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                <i class="fas fa-paper-plane me-2 gradient-icon-small"></i> Как отправить сообщение?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body modern-accordion-body">
+                                <ol class="feature-list">
+                                    <li class="feature-item">Откройте "Рассылка сообщений"</li>
+                                    <li class="feature-item">Введите получателей</li>
+                                    <li class="feature-item">Составьте текст сообщения</li>
+                                    <li class="feature-item">Добавьте медиафайлы</li>
+                                    <li class="feature-item">Нажмите "Отправить"</li>
+                                </ol>
+                                <div class="warning-box">
+                                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                                    <span>Важно: Проверьте права доступа перед отправкой</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item modern-accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button modern-accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                <i class="fas fa-cog me-2 gradient-icon-small"></i> Дополнительные настройки
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body modern-accordion-body">
+                                <div class="settings-grid">
+                                    <div class="setting-item">
+                                        <i class="fas fa-text-width gradient-icon-small"></i>
+                                        <h6>Форматирование</h6>
+                                        <p>Настройка стилей текста</p>
+                                    </div>
+                                    <div class="setting-item">
+                                        <i class="fas fa-clock gradient-icon-small"></i>
+                                        <h6>Интервалы</h6>
+                                        <p>Управление временем отправки</p>
+                                    </div>
+                                    <div class="setting-item">
+                                        <i class="fas fa-save gradient-icon-small"></i>
+                                        <h6>Шаблоны</h6>
+                                        <p>Сохранение шаблонов</p>
+                                    </div>
+                                    <div class="setting-item">
+                                        <i class="fas fa-lock gradient-icon-small"></i>
+                                        <h6>Доступ</h6>
+                                        <p>Управление правами</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(45deg, #2196F3, #00BCD4);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 15px 40px rgba(33, 150, 243, 0.2);
+            --transition: all 0.3s ease;
+        }
+
+        .dashboard-wrapper {
+            position: relative;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            padding: 2rem 0;
+        }
+
+        .dashboard-header {
+            background: var(--primary-gradient);
+            padding: 3rem 1rem;
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .dashboard-header h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .dashboard-header p {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-size: 1.1rem;
+        }
+
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .gradient-text {
+            background: linear-gradient(120deg, #2196F3, #00BCD4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        /* Карточки */
+        .feature-card {
+            margin-bottom: 2rem;
+        }
+
+        .modern-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover .modern-card {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(33, 150, 243, 0.2);
+        }
+
+        .feature-icon-wrapper {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(0, 188, 212, 0.1));
+            position: relative;
+        }
+
+        .gradient-icon {
+            font-size: 2.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Кнопки */
+        .btn-modern {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            color: white;
+            box-shadow: var(--hover-shadow);
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+
+        .logo-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+    /* Обновленные стили аккордеона */
+    .modern-accordion-item {
+        border: none;
+        background: transparent;
+    }
+
+    .modern-accordion-button {
+        background: rgba(255, 255, 255, 0.8) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 1.2rem !important;
+        font-weight: 500;
+        color: #333;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .modern-accordion-button:not(.collapsed) {
+        background: linear-gradient(45deg, rgba(33, 150, 243, 0.1), rgba(0, 188, 212, 0.1)) !important;
+        color: #2196F3;
+    }
+
+    .modern-accordion-button::after {
+        background-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .modern-accordion-body {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 0 0 12px 12px;
+        padding: 1.5rem;
+    }
+
+    .gradient-icon-small {
+        font-size: 1.2rem;
+        background: linear-gradient(45deg, #2196F3, #00BCD4);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .feature-item {
+        padding: 0.8rem 0;
+        transition: all 0.3s ease;
+        position: relative;
+        padding-left: 2rem;
+        color: #555;
+    }
+
+    .feature-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 1.2rem;
+        height: 1.2rem;
+        background: linear-gradient(45deg, #2196F3, #00BCD4);
+        border-radius: 50%;
+        transform: translateY(-50%) scale(0.6);
+        opacity: 0.2;
+        transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+        color: #2196F3;
+        transform: translateX(5px);
+    }
+
+    .feature-item:hover::before {
+        transform: translateY(-50%) scale(0.8);
+        opacity: 1;
+    }
+
+    .info-box, .warning-box {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .info-box i, .warning-box i {
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+        .modern-accordion-button {
+            padding: 1rem !important;
+            font-size: 0.9rem;
+        }
+
+        .feature-item {
+            font-size: 0.9rem;
+            padding-left: 1.5rem;
+        }
+
+        .info-box, .warning-box {
+            font-size: 0.9rem;
+            padding: 0.8rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 15px;
+        }
+        
+        .gradient-icon {
+            font-size: 2rem;
+        }
+        
+        .feature-icon-wrapper {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .btn-modern {
+            padding: 10px 20px;
+            font-size: 0.95rem;
+        }
+        
+        .display-4 {
+            font-size: 2rem;
+        }
+        
+        .lead {
+            font-size: 1rem;
+        }
+    }
+
+
+    /* Анимации */
+    .help-section {
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .help-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+    }
+
+    /* Settings Grid Styles */
+    .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .setting-item {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .setting-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(33, 150, 243, 0.15);
+    }
+
+    .setting-item i {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .setting-item h6 {
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .setting-item p {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .settings-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .setting-item {
+            padding: 1rem;
+        }
+        
+        .setting-item i {
+            font-size: 1.5rem;
+        }
+        
+        .setting-item h6 {
+            font-size: 0.9rem;
+        }
+        
+        .setting-item p {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* Enhanced animations and effects */
+    .modern-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modern-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.2));
+        transition: transform 0.5s;
+        transform: translateX(-100%);
+    }
+
+    .modern-card:hover::before {
+        transform: translateX(100%);
+    }
+
+    .feature-icon-wrapper::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: inherit;
+        filter: blur(10px);
+        opacity: 0.5;
+        z-index: -1;
+        transition: all 0.3s ease;
+    }
+
+    .feature-icon-wrapper:hover::after {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(33, 150, 243, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
+    }
+
+    .btn-modern:focus {
+        animation: pulseGlow 1.5s infinite;
+    }
+
+    .dashboard-header {
+        animation: fadeInDown 0.8s ease-out;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .feature-card {
+        animation: fadeInUp 0.8s ease-out;
+        animation-fill-mode: both;
+    }
+
+    .feature-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .help-section {
+        animation: fadeIn 1s ease-out;
+        animation-delay: 0.4s;
+        animation-fill-mode: both;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    </style>
+</div>
+{% endblock %}
+

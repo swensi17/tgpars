@@ -1,0 +1,918 @@
+{% extends 'base.html' %}
+{% block title %}Глобальный поиск{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+	<div class="row justify-content-center">
+		<div class="col-lg-8">
+			<div class="card modern-card animate-in">
+				<div class="card-body p-4">
+					<h2 class="card-title text-center mb-4 animate-in">
+						<i class="fas fa-globe gradient-icon me-2"></i>
+						Глобальный поиск
+					</h2>
+					<form method="POST" class="search-form mb-4 animate-in">
+						<div class="input-group mb-3">
+							<input type="text" name="query" class="form-control form-control-lg" 
+								   placeholder="Введите ключевые слова через запятую..." 
+								   value="{{ query if query else '' }}"
+								   data-bs-toggle="tooltip"
+								   title="Введите несколько слов через запятую для расширенного поиска">
+							<button class="btn btn-modern" type="submit">
+								<i class="fas fa-search me-2"></i> Поиск
+							</button>
+						</div>
+						<div class="search-filters">
+							<div class="filters-title mb-3">
+								<i class="fas fa-filter gradient-icon-sm me-2"></i>
+								<span>Фильтры поиска</span>
+							</div>
+							
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<div class="filter-section">
+										<h6 class="filter-subtitle mb-2">Тип результатов</h6>
+										<div class="filter-options">
+											<div class="form-check form-switch">
+												<input class="form-check-input" type="checkbox" name="search_type" value="channels" id="channelsCheck" {{ 'checked' if not search_type or 'channels' in search_type }}>
+												<label class="form-check-label" for="channelsCheck">
+													<i class="fas fa-broadcast-tower me-2"></i>Каналы
+												</label>
+											</div>
+											<div class="form-check form-switch">
+												<input class="form-check-input" type="checkbox" name="search_type" value="chats" id="chatsCheck" {{ 'checked' if not search_type or 'chats' in search_type }}>
+												<label class="form-check-label" for="chatsCheck">
+													<i class="fas fa-comments me-2"></i>Чаты
+												</label>
+											</div>
+											<div class="form-check form-switch">
+												<input class="form-check-input" type="checkbox" name="search_type" value="bots" id="botsCheck" {{ 'checked' if not search_type or 'bots' in search_type }}>
+												<label class="form-check-label" for="botsCheck">
+													<i class="fas fa-robot me-2"></i>Боты
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								<div class="col-md-6 mb-3">
+									<div class="filter-section">
+										<h6 class="filter-subtitle mb-2">Искать в полях</h6>
+										<div class="filter-options">
+											<div class="form-check">
+												<input class="form-check-input" type="checkbox" name="search_in_username" id="usernameCheck" 
+													   {{ 'checked' if search_in_username is not defined or search_in_username }}>
+												<label class="form-check-label" for="usernameCheck">
+													<i class="fas fa-at me-2"></i>Юзернейм
+												</label>
+											</div>
+											<div class="form-check">
+												<input class="form-check-input" type="checkbox" name="search_in_title" id="titleCheck" 
+													   {{ 'checked' if search_in_title is not defined or search_in_title }}>
+												<label class="form-check-label" for="titleCheck">
+													<i class="fas fa-heading me-2"></i>Название
+												</label>
+											</div>
+											<div class="form-check">
+												<input class="form-check-input" type="checkbox" name="search_in_description" id="descriptionCheck" 
+													   {{ 'checked' if search_in_description is not defined or search_in_description }}>
+												<label class="form-check-label" for="descriptionCheck">
+													<i class="fas fa-align-left me-2"></i>Описание
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="row mt-2">
+								<div class="col-md-6 mb-3">
+									<div class="filter-section">
+										<h6 class="filter-subtitle mb-2">Количество участников</h6>
+										<div class="row g-2">
+											<div class="col-6">
+												<input type="number" class="form-control" name="min_members" placeholder="От" value="{{ min_members if min_members }}">
+											</div>
+											<div class="col-6">
+												<input type="number" class="form-control" name="max_members" placeholder="До" value="{{ max_members if max_members }}">
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								<div class="col-md-6 mb-3 d-flex align-items-end">
+									<button type="submit" class="btn btn-primary w-100">
+										<i class="fas fa-filter me-2"></i>Применить фильтры
+									</button>
+								</div>
+							</div>
+						</div>
+					</form>
+
+					{% if results %}
+					<div class="export-buttons mb-3">
+						<button class="btn btn-outline-primary" onclick="exportResults('csv', this)">
+							<i class="fas fa-file-csv me-2"></i>Скачать CSV
+						</button>
+						<button class="btn btn-outline-primary" onclick="exportResults('txt', this)">
+							<i class="fas fa-file-alt me-2"></i>Скачать TXT
+						</button>
+						<button class="btn btn-outline-primary" onclick="exportResults('docx', this)">
+							<i class="fas fa-file-word me-2"></i>Скачать DOCX
+						</button>
+						<button class="btn btn-outline-primary" onclick="exportResults('pdf', this)">
+							<i class="fas fa-file-pdf me-2"></i>Скачать PDF
+						</button>
+					</div>
+					<div class="search-results animate-in">
+							{% if results.channels %}
+								<div class="result-section mb-4">
+									<h3 class="gradient-text mb-3">
+										<i class="fas fa-broadcast-tower me-2"></i> Каналы
+									</h3>
+									<div class="row g-3">
+										{% for channel in results.channels %}
+											<div class="col-md-6">
+												<div class="result-card">
+													<div class="d-flex align-items-start">
+														<div class="avatar-container me-3">
+															{% if channel.photo_url %}
+																<img src="{{ channel.photo_url }}" alt="{{ channel.title }}" class="channel-avatar">
+															{% else %}
+																<div class="default-avatar">
+																	<i class="fas fa-broadcast-tower"></i>
+																</div>
+															{% endif %}
+														</div>
+														<div class="result-content flex-grow-1">
+															<h5>{{ channel.title }}</h5>
+															{% if channel.username %}
+																<p class="text-primary mb-2">@{{ channel.username }}</p>
+															{% endif %}
+															{% if channel.description %}
+																<p class="text-muted small mb-2">{{ channel.description }}</p>
+															{% endif %}
+													<div class="d-flex justify-content-between align-items-center">
+														{% if channel.members %}
+															<p class="text-muted small mb-0">
+																<i class="fas fa-users me-1"></i> {{ channel.members }} участников
+															</p>
+														{% endif %}
+														{% if channel.matched_terms %}
+															<div class="matched-terms">
+																<span class="badge bg-primary-soft">
+																	<i class="fas fa-check-circle me-1"></i>
+																	{{ channel.matched_terms|length }} совпадений
+																</span>
+															</div>
+														{% endif %}
+													</div>
+													<div class="action-buttons mt-3 pt-2 border-top">
+														{% if channel.username %}
+															{% if channel.is_subscribed %}
+																<button class="btn btn-sm btn-danger me-2" onclick="unsubscribe('channels', '{{ channel.username }}', this)">
+																	<i class="fas fa-times me-1"></i>Отписаться
+																</button>
+															{% else %}
+																<button class="btn btn-sm btn-primary me-2" onclick="subscribe('channels', '{{ channel.username }}', this)">
+																	<i class="fas fa-plus me-1"></i>Подписаться
+																</button>
+															{% endif %}
+															<a href="https://t.me/{{ channel.username }}" target="_blank" class="btn btn-sm btn-outline-primary">
+																<i class="fas fa-external-link-alt me-1"></i>Перейти
+															</a>
+														{% endif %}
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+						</div>
+					{% endif %}
+
+					{% if results.chats %}
+						<div class="result-section mb-4">
+							<h3 class="gradient-text mb-3">
+								<i class="fas fa-comments me-2"></i> Чаты
+							</h3>
+							<div class="row g-3">
+								{% for chat in results.chats %}
+									<div class="col-md-6">
+										<div class="result-card">
+											<div class="result-content">
+
+													<h5>{{ chat.title }}</h5>
+													{% if chat.username %}
+														<p class="text-primary mb-2">@{{ chat.username }}</p>
+													{% endif %}
+													{% if chat.description %}
+														<p class="text-muted small mb-2">{{ chat.description }}</p>
+													{% endif %}
+													{% if chat.members %}
+														<p class="text-muted small mb-0">
+															<i class="fas fa-users me-1"></i> {{ chat.members }} участников
+														</p>
+													{% endif %}
+													<div class="action-buttons mt-3 pt-2 border-top">
+														{% if chat.username %}
+															{% if chat.is_subscribed %}
+																<button class="btn btn-sm btn-danger me-2" onclick="unsubscribe('chats', '{{ chat.username }}', this)">
+																	<i class="fas fa-times me-1"></i>Отписаться
+																</button>
+															{% else %}
+																<button class="btn btn-sm btn-primary me-2" onclick="subscribe('chats', '{{ chat.username }}', this)">
+																	<i class="fas fa-plus me-1"></i>Подписаться
+																</button>
+															{% endif %}
+															<a href="https://t.me/{{ chat.username }}" target="_blank" class="btn btn-sm btn-outline-primary">
+																<i class="fas fa-external-link-alt me-1"></i>Перейти
+															</a>
+														{% endif %}
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+						</div>
+					{% endif %}
+
+					{% if results.bots %}
+						<div class="result-section">
+							<h3 class="gradient-text mb-3">
+								<i class="fas fa-robot me-2"></i> Боты
+							</h3>
+							<div class="row g-3">
+								{% for bot in results.bots %}
+									<div class="col-md-6">
+										<div class="result-card">
+											<div class="result-content">
+
+													<h5>{{ bot.name }}</h5>
+													<p class="text-primary mb-2">@{{ bot.username }}</p>
+													{% if bot.description %}
+														<p class="text-muted small mb-0">{{ bot.description }}</p>
+													{% endif %}
+													<div class="action-buttons mt-3 pt-2 border-top">
+														{% if bot.is_subscribed %}
+															<button class="btn btn-sm btn-danger me-2" onclick="unsubscribe('bots', '{{ bot.username }}', this)">
+																<i class="fas fa-times me-1"></i>Отписаться
+															</button>
+														{% else %}
+															<button class="btn btn-sm btn-primary me-2" onclick="subscribe('bots', '{{ bot.username }}', this)">
+																<i class="fas fa-plus me-1"></i>Подписаться
+															</button>
+														{% endif %}
+														<a href="https://t.me/{{ bot.username }}" target="_blank" class="btn btn-sm btn-outline-primary">
+															<i class="fas fa-external-link-alt me-1"></i>Перейти
+														</a>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+						</div>
+					{% endif %}
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+/* Base styles */
+.search-form {
+	position: relative;
+	margin-bottom: 2rem;
+}
+
+/* Search form and filter styles */
+.input-group .form-control-lg {
+    font-size: 1rem;
+}
+
+.filters-title {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.gradient-icon-sm {
+    font-size: 0.9rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.filter-subtitle {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-check {
+    margin-bottom: 0.5rem;
+}
+
+.form-check-label {
+    font-size: 0.95rem;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-input:checked + .form-check-label {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+
+
+
+/* Card styles */
+.result-card {
+	background: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(10px);
+	border-radius: 15px;
+	padding: 1.25rem;
+	margin-bottom: 1rem;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.result-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Filter styles */
+.filter-section {
+	background: rgba(255, 255, 255, 0.5);
+	padding: 1rem;
+	border-radius: 10px;
+	height: 100%;
+}
+
+.filter-options {
+	background: rgba(255, 255, 255, 0.5);
+	padding: 0.75rem;
+	border-radius: 8px;
+}
+
+/* Button styles */
+.btn-success {
+	background: linear-gradient(135deg, #28a745, #20c997);
+	border: none;
+	color: white;
+}
+
+.btn-success:hover {
+	background: linear-gradient(135deg, #218838, #1e9c7f);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+}
+
+.btn-danger {
+	background: linear-gradient(135deg, #dc3545, #c82333);
+	border: none;
+	color: white;
+}
+
+.btn-danger:hover {
+	background: linear-gradient(135deg, #c82333, #bd2130);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+}
+
+/* Toast styles */
+.toast-notification {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	padding: 1rem;
+	border-radius: 8px;
+	background: white;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+	z-index: 1000;
+	animation: slideIn 0.3s ease;
+}
+
+/* Toast notification states */
+.toast-notification.success {
+    background: #4caf50;
+    color: white;
+}
+
+.toast-notification.error {
+    background: #f44336;
+    color: white;
+}
+
+/* Button disabled states */
+.btn-success:disabled {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    opacity: 0.7;
+}
+
+.btn-danger:disabled {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    opacity: 0.7;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+	.container.py-5 {
+		padding: 0.75rem !important;
+	}
+	
+	.card.modern-card {
+		margin: 0;
+		border-radius: 0;
+		background: transparent;
+	}
+
+	.gradient-text {
+		font-size: 1.25rem;
+		margin: 1.5rem 0 1rem;
+		color: var(--primary-color);
+	}
+	
+	.matched-terms {
+		margin-top: 0.5rem;
+	}
+	
+	.matched-terms .badge {
+		background: rgba(var(--primary-rgb), 0.1);
+		color: var(--primary-color);
+		font-weight: 500;
+		font-size: 0.85rem;
+	}
+	
+	.text-muted.small {
+		font-size: 0.85rem;
+		line-height: 1.4;
+		opacity: 0.8;
+	}
+	
+	.result-section {
+		padding: 0;
+		margin-top: 1.5rem;
+	}
+	
+	.row {
+		margin: 0 -0.5rem;
+	}
+	
+	.col-md-6 {
+		padding: 0.5rem;
+	}
+	
+	.result-card:hover {
+		transform: none;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	}
+	
+	.card-body {
+		padding: 1rem !important;
+	}
+	
+	.card-title {
+		font-size: 1.5rem;
+		margin-bottom: 1.5rem;
+		text-align: center;
+	}
+	
+	.search-form {
+		margin-bottom: 1.5rem;
+	}
+	
+	.input-group {
+		background: rgba(255, 255, 255, 0.95);
+		padding: 1rem;
+		border-radius: 12px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+		flex-direction: column;
+		margin: 0;
+		width: 100%;
+	}
+	
+	.input-group .form-control {
+		border-radius: 10px !important;
+		margin-bottom: 0.75rem;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		padding: 0.875rem;
+		font-size: 1rem;
+		height: auto;
+		box-shadow: none;
+		width: 100%;
+		background: #fff;
+	}
+	
+	.input-group .btn {
+		border-radius: 10px !important;
+		width: 100%;
+		padding: 0.875rem;
+		height: auto;
+		font-size: 1rem;
+		margin: 0;
+		background: var(--primary-color);
+		color: white;
+		border: none;
+	}
+	
+	.export-buttons {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+		margin: 1.5rem 1rem;
+		padding: 0;
+	}
+	
+	.export-buttons .btn {
+		margin: 0 !important;
+		padding: 0.875rem;
+		height: 52px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 12px;
+		background: rgba(255, 255, 255, 0.98);
+		border: 1px solid rgba(var(--primary-rgb), 0.15);
+		color: var(--primary-color);
+		font-weight: 500;
+		font-size: 0.95rem;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+		transition: all 0.2s ease;
+	}
+	
+	.export-buttons .btn i {
+		width: 20px;
+		margin-right: 0.75rem;
+		font-size: 1.1rem;
+		opacity: 0.9;
+		transition: transform 0.2s ease;
+	}
+	
+	.export-buttons .btn:hover {
+		background: rgba(var(--primary-rgb), 0.05);
+		border-color: var(--primary-color);
+	}
+	
+	.export-buttons .btn:active {
+		transform: translateY(1px);
+		background: var(--primary-color);
+		color: white;
+		border-color: var(--primary-color);
+	}
+	
+	.export-buttons .btn:active i {
+		transform: scale(1.1);
+		opacity: 1;
+	}
+
+	
+	.search-filters {
+		background: rgba(255, 255, 255, 0.9);
+		padding: 1rem;
+		border-radius: 12px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+		margin-top: 1rem;
+	}
+	
+	.filters-title {
+		background: rgba(255, 255, 255, 0.8);
+		border-radius: 8px;
+		padding: 0.75rem;
+		margin: -0.5rem -0.5rem 1rem -0.5rem;
+	}
+	
+	.filter-section {
+		background: rgba(255, 255, 255, 0.8);
+		padding: 1rem;
+		border-radius: 10px;
+		margin-bottom: 1rem;
+	}
+	
+	.filter-subtitle {
+		font-size: 0.9rem;
+		margin-bottom: 0.75rem;
+	}
+	
+	.form-check {
+		margin-bottom: 0.5rem;
+	}
+	
+	.result-card {
+		background: rgba(255, 255, 255, 0.9);
+		border-radius: 12px;
+		padding: 1.25rem;
+		margin: 0.75rem 0;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+	}
+	
+	.result-content h5 {
+		font-size: 1.1rem;
+		margin-bottom: 0.5rem;
+		color: var(--primary-color);
+	}
+	
+	.export-buttons {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin: 1rem 0;
+	}
+	
+	.export-buttons .btn {
+		flex: 1;
+		min-width: 120px;
+		padding: 0.75rem;
+	}
+}
+
+@media (max-width: 576px) {
+	.container.py-5 {
+		padding: 0.5rem !important;
+	}
+	
+	.card-title {
+		font-size: 1.25rem;
+		margin-bottom: 1rem;
+	}
+
+	.text-muted.small {
+		font-size: 0.8rem;
+	}
+	
+	.matched-terms .badge {
+		font-size: 0.75rem;
+		padding: 0.25rem 0.5rem;
+	}
+	
+	.result-card {
+		background: rgba(255, 255, 255, 0.95);
+	}
+	
+	.filter-options {
+		background: rgba(255, 255, 255, 0.7);
+	}
+	
+	.input-group {
+		padding: 0.75rem;
+		margin-bottom: 1rem;
+	}
+	
+	.input-group .form-control {
+		padding: 0.75rem;
+		font-size: 0.95rem;
+		margin-bottom: 0.75rem;
+	}
+	
+	.input-group .btn {
+		padding: 0.75rem;
+		font-size: 0.95rem;
+	}
+	
+	.export-buttons {
+		margin: 1.25rem 0.75rem;
+		gap: 0.625rem;
+	}
+	
+	.export-buttons .btn {
+		height: 48px;
+		padding: 0.75rem;
+		font-size: 0.9rem;
+		border-radius: 10px;
+	}
+	
+	.export-buttons .btn i {
+		width: 18px;
+		margin-right: 0.625rem;
+		font-size: 1rem;
+	}
+
+
+	
+	.search-filters {
+		padding: 0.75rem;
+	}
+	
+	.filter-section {
+		padding: 0.75rem;
+	}
+	
+	.result-card {
+		padding: 1rem;
+		margin: 0.5rem 0;
+	}
+	
+	.result-content h5 {
+		font-size: 1rem;
+	}
+	
+	.action-buttons {
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-top: 0.75rem;
+	}
+	
+	.action-buttons .btn {
+		flex: 1;
+		font-size: 0.85rem;
+		padding: 0.5rem;
+	}
+	
+	.export-buttons .btn {
+		padding: 0.5rem;
+		font-size: 0.85rem;
+	}
+}
+
+
+
+/* Animations */
+@keyframes slideIn {
+	from { transform: translateX(100%); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+.fa-spin {
+	animation: spin 1s linear infinite;
+}
+
+
+
+</style>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	// Animate results on scroll
+	const observer = new IntersectionObserver((entries) => {
+		entries.forEach(entry => {
+			if (entry.isIntersecting) {
+				entry.target.style.animation = 'fadeIn 0.6s ease forwards';
+			}
+		});
+	});
+
+	document.querySelectorAll('.result-card').forEach((card) => {
+		observer.observe(card);
+	});
+
+	// Smooth filter transitions
+	document.querySelectorAll('.form-check-input').forEach(input => {
+		input.addEventListener('change', function() {
+			this.closest('.form-switch').style.transform = 'translateX(5px)';
+			setTimeout(() => {
+				this.closest('.form-switch').style.transform = 'translateX(0)';
+			}, 300);
+		});
+	});
+
+	// Function to handle unsubscribe
+	window.unsubscribe = async function(type, username, button) {
+		const originalText = button.innerHTML;
+		try {
+			button.disabled = true;
+			button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Отписка...';
+			
+			const response = await fetch(`/unsubscribe/${type}/${username}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			const data = await response.json();
+			
+			if (data.success) {
+				showToast('Успешно отписались!', 'success');
+				button.innerHTML = '<i class="fas fa-plus me-1"></i>Подписаться';
+				button.classList.remove('btn-danger');
+				button.classList.add('btn-primary');
+				button.disabled = false;
+				button.onclick = function() { subscribe(type, username, this); };
+			} else {
+				showToast(data.error || 'Ошибка при отписке', 'error');
+				button.innerHTML = originalText;
+				button.disabled = false;
+			}
+		} catch (error) {
+			showToast('Ошибка при отписке', 'error');
+			button.innerHTML = originalText;
+			button.disabled = false;
+		}
+	};
+
+	window.subscribe = async function(type, username, button) {
+		const originalText = button.innerHTML;
+		try {
+			button.disabled = true;
+			button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Подписка...';
+			
+			const response = await fetch(`/subscribe/${type}/${username}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			const data = await response.json();
+			
+			if (data.success) {
+				showToast('Успешно подписались!', 'success');
+				button.innerHTML = '<i class="fas fa-times me-1"></i>Отписаться';
+				button.classList.remove('btn-primary');
+				button.classList.add('btn-danger');
+				button.disabled = false;
+				button.onclick = function() { unsubscribe(type, username, this); };
+			} else {
+				showToast(data.error || 'Ошибка при подписке', 'error');
+				button.innerHTML = originalText;
+				button.disabled = false;
+			}
+		} catch (error) {
+			showToast('Ошибка при подписке', 'error');
+			button.innerHTML = originalText;
+			button.disabled = false;
+		}
+	};
+
+	// Function to export results with loading state
+	window.exportResults = async function(format, button) {
+		const originalText = button.innerHTML;
+		try {
+			button.disabled = true;
+			button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Загрузка...';
+			
+			const response = await fetch(`/export_results/${format}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({{ results|tojson|safe if results else '{}' }})
+			});
+			
+			if (response.ok) {
+				const blob = await response.blob();
+				const url = window.URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = `search_results.${format}`;
+				document.body.appendChild(a);
+				a.click();
+				window.URL.revokeObjectURL(url);
+				a.remove();
+				showToast('Файл успешно скачан', 'success');
+			} else {
+				const errorData = await response.json();
+				showToast(errorData.error || 'Ошибка при экспорте', 'error');
+			}
+		} catch (error) {
+			showToast('Ошибка при экспорте', 'error');
+		} finally {
+			button.disabled = false;
+			button.innerHTML = originalText;
+		}
+	};
+
+	// Enhanced toast notification
+	function showToast(message, type = 'info') {
+		const toast = document.createElement('div');
+		toast.className = `toast-notification ${type}`;
+		toast.innerHTML = `
+			<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+			${message}
+		`;
+		document.body.appendChild(toast);
+		setTimeout(() => {
+			toast.style.opacity = '0';
+			setTimeout(() => toast.remove(), 300);
+		}, 3000);
+	}
+});
+</script>
+{% endblock %}

@@ -1,0 +1,731 @@
+{% extends 'base.html' %}
+
+{% block title %}Парсинг канала{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h2 class="text-center">
+                <i class="fas fa-database header-icon"></i>
+                Парсинг Telegram канала
+            </h2>
+            <p class="text-center">Настройте параметры парсинга для получения нужных сообщений</p>
+        </div>
+        <div class="header-wave"></div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card parsing-card">
+                <div class="card-body">
+                    <!-- Статус парсинга -->
+                    <div id="statusContainer" class="mb-4" style="display: none;">
+                        <div class="status-wrapper">
+                            <div class="status-header d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-sync-alt fa-spin me-2"></i>
+                                    <span class="status-title">Статус парсинга</span>
+                                </h5>
+                                <button type="button" class="btn btn-danger btn-stop" id="stopBtn">
+                                    <i class="fas fa-stop-circle"></i> Остановить
+                                </button>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: 0%;" 
+                                         id="parseProgress">0%</div>
+                                </div>
+                            </div>
+                            <div class="status-details mt-3">
+                                <div class="row text-center">
+                                    <div class="col">
+                                        <div class="status-item success">
+                                            <div class="status-icon">
+                                                <i class="fas fa-check-circle"></i>
+                                            </div>
+                                            <div class="status-info">
+                                                <span class="status-count" id="processedCount">0</span>
+                                                <span class="status-label">обработано</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="status-item warning">
+                                            <div class="status-icon">
+                                                <i class="fas fa-filter"></i>
+                                            </div>
+                                            <div class="status-info">
+                                                <span class="status-count" id="filteredCount">0</span>
+                                                <span class="status-label">отфильтровано</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="status-item info">
+                                            <div class="status-icon">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <div class="status-info">
+                                                <span class="status-count" id="remainingCount">0</span>
+                                                <span class="status-label">осталось</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" class="parsing-form" id="parseForm">
+                        <!-- Основные параметры -->
+                        <div class="section-title">
+                            <i class="fas fa-sliders-h"></i>
+                            <span>Основные параметры</span>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <div class="form-group source-input">
+                                    <label for="channel" class="form-label">
+                                        <i class="fas fa-at"></i> Источник
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fab fa-telegram"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="channel" name="channel" 
+                                               placeholder="@channel или https://t.me/channel" required>
+                                    </div>
+                                    <div class="form-text">Введите username канала или полную ссылку</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-4">
+                                <div class="form-group">
+                                    <label for="limit" class="form-label">
+                                        <i class="fas fa-list-ol"></i> Количество
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="limit" name="limit" 
+                                               value="100" min="1" max="5000" required>
+                                        <span class="input-group-text">сообщений</span>
+                                    </div>
+                                    <div class="form-text">От 1 до 5000</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-4">
+                                <div class="form-group">
+                                    <label for="offset" class="form-label">
+                                        <i class="fas fa-forward"></i> Пропустить
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="offset" name="offset" 
+                                               value="0" min="0" required>
+                                        <span class="input-group-text">сообщений</span>
+                                    </div>
+                                    <div class="form-text">Начать с N</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-4">
+                                <div class="form-group">
+                                    <label for="batch_size" class="form-label">
+                                        <i class="fas fa-layer-group"></i> Размер пакета
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="batch_size" name="batch_size" 
+                                               value="50" min="1" max="100" required>
+                                        <span class="input-group-text">сообщений</span>
+                                    </div>
+                                    <div class="form-text">От 1 до 100</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Фильтры -->
+                        <div class="section-title">
+                            <i class="fas fa-filter"></i>
+                            <span>Фильтры</span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="form-group">
+                                    <label for="date_from" class="form-label">
+                                        <i class="fas fa-calendar"></i> Дата начала
+                                    </label>
+                                    <input type="date" class="form-control" id="date_from" name="date_from">
+                                    <div class="form-text">Оставьте пустым для всех дат</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <div class="form-group">
+                                    <label for="date_to" class="form-label">
+                                        <i class="fas fa-calendar"></i> Дата окончания
+                                    </label>
+                                    <input type="date" class="form-control" id="date_to" name="date_to">
+                                    <div class="form-text">Оставьте пустым для всех дат</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mb-4">
+                                <div class="form-group">
+                                    <label for="keywords" class="form-label">
+                                        <i class="fas fa-search"></i> Ключевые слова
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-tags"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="keywords" name="keywords" 
+                                               placeholder="Введите ключевые слова через запятую">
+                                    </div>
+                                    <div class="form-text">Фильтрация сообщений по ключевым словам</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Дополнительные опции -->
+                        <div class="section-title">
+                            <i class="fas fa-cog"></i>
+                            <span>Дополнительные настройки</span>
+                        </div>
+
+                        <div class="options-container mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="option-item">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="include_media" name="include_media" checked>
+                                            <label class="form-check-label" for="include_media">
+                                                <i class="fas fa-photo-video"></i> Включать медиафайлы
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="option-item">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="include_forwarded" name="include_forwarded" checked>
+                                            <label class="form-check-label" for="include_forwarded">
+                                                <i class="fas fa-share"></i> Включать пересланные
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="option-item">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="include_links" name="include_links" checked>
+                                            <label class="form-check-label" for="include_links">
+                                                <i class="fas fa-link"></i> Включать ссылки
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="option-item">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="include_views" name="include_views" checked>
+                                            <label class="form-check-label" for="include_views">
+                                                <i class="fas fa-eye"></i> Включать просмотры
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="parseBtn">
+                                <i class="fas fa-play me-2"></i> Начать парсинг
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+/* Основные переменные */
+:root {
+    --primary-color: #3498db;
+    --primary-dark: #2980b9;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+    --info-color: #3498db;
+    --danger-color: #e74c3c;
+    --text-color: #2c3e50;
+    --border-color: #ecf0f1;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --shadow: 0 2px 15px rgba(0,0,0,0.05);
+    --hover-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --border-radius: 15px;
+}
+
+/* Заголовок */
+.dashboard-header {
+    position: relative;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    padding: 3rem 2rem 4rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.header-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='1' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+    background-size: cover;
+}
+
+.header-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.dashboard-header h2 {
+    color: white;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard-header p {
+    color: rgba(255,255,255,0.9);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Карточка парсинга */
+.parsing-card {
+    border: none;
+    border-radius: var(--border-radius);
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.parsing-card:hover {
+    box-shadow: var(--hover-shadow);
+}
+
+/* Заголовки секций */
+.section-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.section-title i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+/* Статус парсинга */
+.status-wrapper {
+    background: var(--bg-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    animation: slideDown 0.5s ease-out;
+}
+
+.progress-container {
+    position: relative;
+    margin: 1.5rem 0;
+}
+
+.progress {
+    height: 25px !important;
+    border-radius: var(--border-radius);
+    background: rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Статус элементы */
+.status-item {
+    padding: 1.2rem;
+    border-radius: var(--border-radius);
+    background: white;
+    margin: 0.5rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--hover-shadow);
+}
+
+.status-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.status-info {
+    text-align: center;
+}
+
+.status-count {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.status-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.status-item.success .status-icon { color: var(--success-color); }
+.status-item.warning .status-icon { color: var(--warning-color); }
+.status-item.info .status-icon { color: var(--info-color); }
+
+/* Форма */
+.form-group {
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.2s; }
+.form-group:nth-child(3) { animation-delay: 0.3s; }
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-label i {
+    color: var(--primary-color);
+}
+
+.input-group-text {
+    background: var(--bg-color);
+    border-color: var(--border-color);
+    color: var(--primary-color);
+}
+
+.form-control {
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+    padding: 0.8rem 1.2rem;
+    transition: var(--transition);
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+    transform: translateY(-2px);
+    background: white;
+}
+
+.source-input .form-control {
+    border-left: none;
+}
+
+.source-input .input-group-text {
+    border-right: none;
+    background: white;
+}
+
+/* Опции */
+.options-container {
+    background: var(--bg-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+}
+
+.option-item {
+    margin-bottom: 1rem;
+    transition: var(--transition);
+}
+
+.option-item:hover {
+    transform: translateX(5px);
+}
+
+.form-check-label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-color);
+}
+
+.form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    margin-top: 0.25em;
+    cursor: pointer;
+}
+
+.form-switch .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Кнопка парсинга */
+.btn-primary {
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+    border: none;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(52,152,219,0.3);
+    transition: var(--transition);
+}
+
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: -100%;
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0) 0%, 
+        rgba(255,255,255,0.2) 50%, 
+        rgba(255,255,255,0) 100%);
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(52,152,219,0.4);
+}
+
+.btn-primary:hover::after {
+    left: 100%;
+}
+
+/* Анимации */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 2rem 1rem 3rem;
+    }
+    
+    .status-details .row {
+        flex-direction: column;
+    }
+    
+    .status-item {
+        margin: 0.25rem 0;
+    }
+    
+    .options-container {
+        padding: 1rem;
+    }
+    
+    .btn-primary {
+        padding: 0.8rem 1.5rem;
+    }
+}
+</style>
+
+<script>
+let isRunning = false;
+
+document.getElementById('parseForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!isRunning) {
+        isRunning = true;
+        document.getElementById('statusContainer').style.display = 'block';
+        document.getElementById('parseBtn').disabled = true;
+        
+        // Анимация кнопки
+        const btn = document.getElementById('parseBtn');
+        btn.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i> Парсинг...';
+        
+        startProgress();
+        this.submit();
+    }
+});
+
+document.getElementById('stopBtn').addEventListener('click', function() {
+    if (isRunning && confirm('Вы уверены, что хотите остановить парсинг?')) {
+        fetch('/stop_parsing', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    isRunning = false;
+                    const btn = document.getElementById('parseBtn');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-play me-2"></i> Начать парсинг';
+                    
+                    // Плавно скрываем статус
+                    const statusContainer = document.getElementById('statusContainer');
+                    statusContainer.style.opacity = '0';
+                    setTimeout(() => {
+                        statusContainer.style.display = 'none';
+                        statusContainer.style.opacity = '1';
+                    }, 300);
+                }
+            });
+    }
+});
+
+function startProgress() {
+    const progressInterval = setInterval(function() {
+        if (!isRunning) {
+            clearInterval(progressInterval);
+            return;
+        }
+
+        fetch('/progress')
+            .then(response => response.json())
+            .then(data => {
+                const progress = data.parse_progress;
+                const processedCount = data.processed_count || 0;
+                const filteredCount = data.filtered_count || 0;
+                const totalCount = data.total_count || 0;
+                const remainingCount = totalCount - processedCount;
+
+                // Плавно обновляем прогресс-бар
+                const progressBar = document.getElementById('parseProgress');
+                progressBar.style.width = progress + '%';
+                progressBar.textContent = progress + '%';
+
+                // Анимированно обновляем счетчики
+                animateCounter('processedCount', processedCount);
+                animateCounter('filteredCount', filteredCount);
+                animateCounter('remainingCount', remainingCount);
+
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    isRunning = false;
+                    const btn = document.getElementById('parseBtn');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-check me-2"></i> Готово';
+                    
+                    // Добавляем эффект успешного завершения
+                    const statusWrapper = document.querySelector('.status-wrapper');
+                    statusWrapper.style.borderColor = 'var(--success-color)';
+                    statusWrapper.style.borderWidth = '2px';
+                    statusWrapper.style.borderStyle = 'solid';
+                }
+            });
+    }, 1000);
+}
+
+function animateCounter(elementId, newValue) {
+    const element = document.getElementById(elementId);
+    const currentValue = parseInt(element.textContent);
+    const diff = newValue - currentValue;
+    
+    if (diff === 0) return;
+    
+    const duration = 500; // ms
+    const steps = 20;
+    const step = diff / steps;
+    let current = currentValue;
+    let count = 0;
+    
+    const animation = setInterval(() => {
+        count++;
+        current += step;
+        element.textContent = Math.round(current);
+        
+        if (count === steps) {
+            clearInterval(animation);
+            element.textContent = newValue;
+        }
+    }, duration / steps);
+}
+
+// Добавляем эффект при наведении на опции
+document.querySelectorAll('.option-item').forEach(item => {
+    item.addEventListener('mouseenter', () => {
+        item.style.transform = 'translateX(10px)';
+    });
+    
+    item.addEventListener('mouseleave', () => {
+        item.style.transform = 'translateX(0)';
+    });
+});
+
+// Анимация иконок в заголовке
+document.querySelector('.header-icon').addEventListener('mouseover', function() {
+    this.style.transform = 'scale(1.2) rotate(180deg)';
+});
+
+document.querySelector('.header-icon').addEventListener('mouseout', function() {
+    this.style.transform = 'scale(1) rotate(0)';
+});
+</script>
+{% endblock %} 
