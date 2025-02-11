@@ -1,0 +1,32 @@
+name: Setup GitHub Pages
+
+on:
+	push:
+		branches:
+			- main
+
+jobs:
+	setup-pages:
+		runs-on: ubuntu-latest
+		steps:
+			- uses: actions/checkout@v2
+			
+			- name: Setup GitHub Pages
+				uses: actions/configure-pages@v2
+				with:
+					token: ${{ secrets.GITHUB_TOKEN }}
+					
+			- name: Build static site
+				run: |
+					mkdir -p _site
+					cp -r index.html static templates _site/
+					
+			- name: Upload artifact
+				uses: actions/upload-pages-artifact@v1
+				with:
+					path: '_site'
+					
+			- name: Deploy to GitHub Pages
+				uses: actions/deploy-pages@v1
+				with:
+					token: ${{ secrets.GITHUB_TOKEN }}
