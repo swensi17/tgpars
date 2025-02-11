@@ -1,0 +1,23 @@
+title: Telegram Parser Pro
+description: Мощный инструмент для работы с Telegram API
+baseurl: "/tgpars"
+url: "https://swensi17.github.io"
+
+# Build settings
+markdown: kramdown
+theme: jekyll-theme-cayman
+plugins:
+	- jekyll-feed
+	- jekyll-seo-tag
+
+# Exclude from processing
+exclude:
+	- .git/
+	- .github/
+	- venv/
+	- sessions/
+	- uploads/
+	- database.db
+	- .env
+	- __pycache__/
+	- *.pyc
